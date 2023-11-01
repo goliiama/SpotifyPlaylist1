@@ -1,44 +1,25 @@
-# Access Spotify credentials from environment variables
-SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
+# Spotify Credential Access
+To access your Spotify credentials securely, set the following environment variables:
+- `SPOTIFY_CLIENT_ID`: Your Spotify Client ID
+- `SPOTIFY_CLIENT_SECRET`: Your Spotify Client Secret
 
 # Scraping Billboard 100
-date = input("Which year do you want to travel to? Type the date in this format YYYY-MM-DD: ")
-response = requests.get("https://www.billboard.com/charts/hot-100/" + date)
-soup = BeautifulSoup(response.text, 'html.parser')
-song_names_spans = soup.select("li ul li h3")
-song_names = [song.getText().strip() for song in song_names_spans]
-print(song_names)
+To retrieve Billboard Hot 100 songs for a specific date, follow these steps:
 
-#Spotify Authentication
-sp = spotipy.Spotify(
-    auth_manager=SpotifyOAuth(
-        scope="playlist-modify-private",
-        redirect_uri="http://example.com",
-        client_id=SPOTIFY_CLIENT_ID,
-        client_secret=SPOTIFY_CLIENT_SECRET,
-        show_dialog=True,
-        cache_path="token.txt"
-    )
-)
-user_id = sp.current_user()["id"]
-print(user_id)
+1. Run the script and provide the desired year in the format YYYY-MM-DD when prompted.
+2. The script will then scrape the Billboard Hot 100 chart for the given date.
 
-#Searching Spotify for songs by title
-song_uris = []
-year = date.split("-")[0]
-for song in song_names:
-    result = sp.search(q=f"track:{song} year:{year}", type="track")
-    print(result)
-    try:
-        uri = result["tracks"]["items"][0]["uri"]
-        song_uris.append(uri)
-    except IndexError:
-        print(f"{song} doesn't exist in Spotify. Skipped.")
+# Spotify Authentication
+To enable Spotify integration, ensure you have set up the Spotify Developer credentials in your environment variables as mentioned above. The script will authenticate with Spotify using these credentials.
 
-#Creating a new private playlist in Spotify
-playlist = sp.user_playlist_create(user=user_id, name=f"{date} Billboard 100", public=False)
-print(playlist)
+# Searching Spotify for Songs
+The script will search Spotify for each song from the Billboard Hot 100 chart for the specified year. It will attempt to match the songs and create a list of their Spotify URIs. Any songs not found in Spotify will be skipped and reported.
 
-#Adding songs found into the new playlist
-sp.playlist_add_items(playlist_id=playlist["id"], items=song_uris)
+# Creating a New Private Playlist in Spotify
+After retrieving the song URIs, the script will create a new private Spotify playlist named after the specified date and containing the Billboard Hot 100 songs for that year.
+
+# Adding Songs to the New Playlist
+Finally, the script will add the songs found on Spotify to the newly created private playlist.
+
+Ensure that your environment variables are correctly set, and you have the necessary permissions to perform these operations on your Spotify account.
+
